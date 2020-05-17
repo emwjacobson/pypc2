@@ -2,11 +2,13 @@ from .screen import Screen
 import pygame
 import pygame.gfxdraw
 import time
-# import math
+import math
 
 
 class RaceScreen(Screen):
     flash = True
+            # absolute max of [x, z, y] acceleration
+    accel = [5, 5, 5]
 
     def __init__(self, flash=True):
         super().__init__()
@@ -30,9 +32,9 @@ class RaceScreen(Screen):
             display.fill((0, 0, 0))
 
         # RPM Meter
-        # p is the "percent" of the RPM to show the meter off the top.
-        # eg. p = 0.25 with 8,000 redline will show the RPM bar from 6,000 - 8,000 RPM.
-        # eg. p = 1 will show the entire RPM bar for the entire time.
+            # p is the "percent" of the RPM to show the meter off the top.
+            # eg. p = 0.25 with 8,000 redline will show the RPM bar from 6,000 - 8,000 RPM.
+            # eg. p = 1 will show the entire RPM bar for the entire time.
         p = 0.3
         rpm_bar_height = 100 * self.scale_y
         if pct > (1 - p):
@@ -69,10 +71,62 @@ class RaceScreen(Screen):
                                 self.scale_y * 500, (255, 255, 255),
                                 (display.get_width() // 2, display.get_height() // 2))
 
-        # Boost Pressure
 
-        #   Using arc. Looks really bad, has holes and gaps in lines, but best so far.
-        # pygame.draw.arc(display, (255, 255, 255), (100, 100, 300, 300), 0, math.pi * pct, 50)
+        # Acceleration graph
+            # x is left/right, z is up/down, y is forward/backwards. All relative to the player sitting in the car.
+        x, z, y = [(i / 9.81) for i in data['motionAndDeviceRelated']['mLocalAcceleration']]
+        ex, ez, ey = self.accel
+        radius = self.scale_y * 200
+        if math.fabs(x) > ex and math.fabs(x) < 5:
+            print("ex: {}".format(x))
+            ex = int(math.fabs(x) + 2)
+        if math.fabs(y) > ey and math.fabs(y) < 5:
+            print("ey: {}".format(y))
+            ey = int(math.fabs(y) + 1)
+        if math.fabs(z) > ez and math.fabs(z) < 5:
+            ez = int(math.fabs(z) + 1)
+        # self.accel = [i if i > 0 else 1 for i in [ex, ey, ez]]
+        self.accel = [ex, ez, ey]
+
+            # Create a surface to draw the gauge on to simplify things a little
+        gauge = pygame.Surface((int(radius * 2), int(radius * 2)), pygame.SRCALPHA)
+            # Outer ring
+        pygame.draw.circle(gauge, (9, 180, 227), (gauge.get_width() // 2, gauge.get_height() // 2), radius, 5)
+            # Inner Horizontal/Vertical lines
+        pygame.draw.line(gauge, (9, 180, 227), (gauge.get_width() // 2, 0), (gauge.get_width() // 2, gauge.get_height())) 
+        pygame.draw.line(gauge, (9, 180, 227), (0, gauge.get_height() // 2), (gauge.get_width(), gauge.get_height() // 2))
+            # Inner rings
+        m = max(ex, ey)
+        for i in range(1, m+1):
+            pygame.draw.circle(gauge, (9, 180, 227), (gauge.get_width() // 2, gauge.get_height() // 2), (radius * (i / m)), 1)
+            self.render_font(gauge, self.basic_font, str(i), int(self.scale_y * 25), (255, 255, 255), ((gauge.get_height() // 2) - (radius * (i / m) - 5), gauge.get_width() // 2))
+            # Current G-force dot
+        pygame.draw.circle(gauge, (255, 255, 255), ((gauge.get_width() // 2) + int(radius * (x / ex)), (gauge.get_height() // 2) - int(radius * (y / ey))), 5)
+            # Current G-force values
+        d = [
+            "x: {:.2f}".format(math.fabs(x)),
+            "y: {:.2f}".format(math.fabs(y))
+        ]
+        self.render_lines(gauge, self.basic_font, (gauge.get_width(), gauge.get_height() - (2 * 25)), d, (255, 255, 255),
+                          20, 5, self.render_font_right)
+
+            # Draw gauge onto main screen
+        display.blit(gauge, (display.get_width() - gauge.get_width(), display.get_height() - gauge.get_height()))
+
+
+        # Gas and Break Bars
+        gas = data['unfilteredInput']['mUnfilteredThrottle']
+        brake = data['unfilteredInput']['mUnfilteredBrake']
+        radius = self.scale_y * 200
+        lower_curve = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
+        pygame.draw.circle(lower_curve, (0, 255, 255), (lower_curve.get_width() // 2, lower_curve.get_height() // 2), radius, 50, draw_top_right=True, draw_top_left=True, draw_bottom_left=False, draw_bottom_right=False)
+        upper_curve = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
+        pygame.draw.circle(upper_curve, (0, 0, 255), (upper_curve.get_width() // 2, upper_curve.get_height() // 2), radius, 50, draw_top_right=True, draw_top_left=True, draw_bottom_left=False, draw_bottom_right=False)
+        upper_curve = pygame.transform.rotate(upper_curve, -360 * gas)
+        lower_curve.blit(upper_curve, (0, 0))
+
+        display.blit(lower_curve, (0, display.get_height() - lower_curve.get_height()))
+
 
         #   gfxdraw circles. Doesnt allow for drawing semi-circles.
         # pygame.gfxdraw.aacircle(display, 100, 100, 50, (255, 255, 255))
