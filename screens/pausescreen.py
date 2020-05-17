@@ -57,11 +57,11 @@ class PauseScreen(Screen):
                           self.render_font_right)
 
         # # Picture in Picture
-        # ratio = 2/3
-        # if pip:
-        #     pip_surface = pygame.Surface((display.get_width() * ratio, display.get_height() * ratio))
-        #     pip.render_screen(data, pip_surface)
-        #     display.blit(pip_surface, (0, 0))
+        ratio = 2/3
+        if pip:
+            pip_surface = pygame.Surface((display.get_width() * ratio, display.get_height() * ratio))
+            pip.render_screen(data, pip_surface)
+            display.blit(pip_surface, (0, 0))
 
         # mini_surface = pygame.Surface((self.display.get_width() * (2/3), self.display.get_height() * (2/3)))
         # race_screen = RaceScreen(mini, False)

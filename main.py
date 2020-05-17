@@ -21,7 +21,7 @@ headers = {
 
 resolution = (1280//2, 720//2)
 
-fps = 60
+fps = 20
 
 screen = pygame.display.set_mode((0, 0), flags=pygame.NOFRAME)
 pygame.display.set_caption("Project Cars 2")
