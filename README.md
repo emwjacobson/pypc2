@@ -10,15 +10,15 @@ Python3.6 and venv module
 pip
 
 ## Install
- - Initialize venv with Python3.6 (pygame requirement)
-	 - `python3.6 -m venv .`
+ - Initialize venv with Python (I used Python3.8)
+	 - `python3.8 -m venv p3.8`
  - Activate venv
-	 - `source bin/activate`
+	 - `source p3.8/bin/activate`
  - Install pip requirements
 	 - `pip install -r requirements.txt`
 
 ## Run
 - Activate virtualenv
-	- `source bin/activate`
+	- `source p3.8/bin/activate`
 - Run 'er
 	- `python main.py`
