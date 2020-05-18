@@ -117,15 +117,18 @@ class RaceScreen(Screen):
         # Gas and Break Bars
         gas = data['unfilteredInput']['mUnfilteredThrottle']
         brake = data['unfilteredInput']['mUnfilteredBrake']
-        radius = self.scale_y * 200
-        lower_curve = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
-        pygame.draw.circle(lower_curve, (0, 255, 255), (lower_curve.get_width() // 2, lower_curve.get_height() // 2), radius, 50, draw_top_right=True, draw_top_left=True, draw_bottom_left=False, draw_bottom_right=False)
-        upper_curve = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
-        pygame.draw.circle(upper_curve, (0, 0, 255), (upper_curve.get_width() // 2, upper_curve.get_height() // 2), radius, 50, draw_top_right=True, draw_top_left=True, draw_bottom_left=False, draw_bottom_right=False)
-        upper_curve = pygame.transform.rotate(upper_curve, -360 * gas)
-        lower_curve.blit(upper_curve, (0, 0))
-
-        display.blit(lower_curve, (0, display.get_height() - lower_curve.get_height()))
+            # This was an attempt to use portions of overlapping circles to make a cool circular bar, but pygame do weird resizing when rotating.
+        # gas = data['unfilteredInput']['mUnfilteredThrottle']
+        # brake = data['unfilteredInput']['mUnfilteredBrake']
+        # radius = self.scale_y * 200
+        # lower_curve = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
+        # pygame.draw.circle(lower_curve, (0, 255, 255), (lower_curve.get_width() // 2, lower_curve.get_height() // 2), radius, 50, draw_top_right=True, draw_top_left=True, draw_bottom_left=False, draw_bottom_right=False)
+        # upper_curve = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
+        # pygame.draw.circle(upper_curve, (0, 0, 255), (upper_curve.get_width() // 2, upper_curve.get_height() // 2), radius, 50, draw_top_right=True, draw_top_left=True, draw_bottom_left=False, draw_bottom_right=False)
+        # upper_curve = pygame.transform.rotate(upper_curve, -360 * gas)
+        # upper_curve.get_rect(center=upper_curve.get_rect().center)
+        # lower_curve.blit(upper_curve, (0, 0))
+        # display.blit(lower_curve, (0, display.get_height() - lower_curve.get_height()))
 
 
         #   gfxdraw circles. Doesnt allow for drawing semi-circles.
