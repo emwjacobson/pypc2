@@ -31,6 +31,8 @@ class RaceScreen(Screen):
         else:
             display.fill((0, 0, 0))
 
+
+
         # RPM Meter
             # p is the "percent" of the RPM to show the meter off the top.
             # eg. p = 0.25 with 8,000 redline will show the RPM bar from 6,000 - 8,000 RPM.
@@ -46,11 +48,15 @@ class RaceScreen(Screen):
                              color,
                              (0, 0, display.get_width() * t, rpm_bar_height))
 
+
+
         # Current RPM, drawn in RPM bar
         rpm_x, rpm_y = self.render_font_top_center(display, self.basic_font,
                                                    "{:.0f}".format(data['carState']['mRpm']),
                                                    rpm_bar_height, (255, 255, 255),
                                                    (display.get_width() // 2, 5))
+
+
 
         # Current Speed
         meters = data['carState']['mSpeed']
@@ -65,11 +71,15 @@ class RaceScreen(Screen):
                                     self.scale_y * 50, (255, 255, 255),
                                     (display.get_width() // 2, _h + rpm_bar_height))
 
+
+
         # Current Gear
         self.render_font_center(display, self.digital_font,
                                 str(data['carState']['mGear']),
-                                self.scale_y * 500, (255, 255, 255),
-                                (display.get_width() // 2, display.get_height() // 2))
+                                self.scale_y * 400, (255, 255, 255),
+                                                            # This offset corrects the font being offcenter for some reason.
+                                ((display.get_width() // 2) + (20 * self.scale_x), display.get_height() // 2))
+
 
 
         # Acceleration graph
@@ -114,23 +124,19 @@ class RaceScreen(Screen):
         display.blit(gauge, (display.get_width() - gauge.get_width(), display.get_height() - gauge.get_height()))
 
 
+
         # Gas and Break Bars
+            # Could probably do this with just 1 surface, and using the `area` parameter of the .blit() function.
         gas = data['unfilteredInput']['mUnfilteredThrottle']
         brake = data['unfilteredInput']['mUnfilteredBrake']
-            # This was an attempt to use portions of overlapping circles to make a cool circular bar, but pygame do weird resizing when rotating.
-        # gas = data['unfilteredInput']['mUnfilteredThrottle']
-        # brake = data['unfilteredInput']['mUnfilteredBrake']
-        # radius = self.scale_y * 200
-        # lower_curve = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
-        # pygame.draw.circle(lower_curve, (0, 255, 255), (lower_curve.get_width() // 2, lower_curve.get_height() // 2), radius, 50, draw_top_right=True, draw_top_left=True, draw_bottom_left=False, draw_bottom_right=False)
-        # upper_curve = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
-        # pygame.draw.circle(upper_curve, (0, 0, 255), (upper_curve.get_width() // 2, upper_curve.get_height() // 2), radius, 50, draw_top_right=True, draw_top_left=True, draw_bottom_left=False, draw_bottom_right=False)
-        # upper_curve = pygame.transform.rotate(upper_curve, -360 * gas)
-        # upper_curve.get_rect(center=upper_curve.get_rect().center)
-        # lower_curve.blit(upper_curve, (0, 0))
-        # display.blit(lower_curve, (0, display.get_height() - lower_curve.get_height()))
+        radius = self.scale_y * 270
+        gas_graph = self.makeCircularGraph(gas, 15, (0, 170, 0), radius)
+        gas_graph = pygame.transform.rotate(gas_graph, -90)
+        gas_graph = pygame.transform.flip(gas_graph, False, True)
+        brake_graph = self.makeCircularGraph(brake, 15, (170, 0, 0), radius)
+        brake_graph = pygame.transform.rotate(brake_graph, 90)
+        display.blit(brake_graph, ((display.get_width() // 2) - brake_graph.get_width(), (display.get_height() // 2) - (brake_graph.get_height() // 2)))
+        display.blit(gas_graph, ((display.get_width() // 2), (display.get_height() // 2) - (gas_graph.get_height() // 2)))
 
-
-        #   gfxdraw circles. Doesnt allow for drawing semi-circles.
-        # pygame.gfxdraw.aacircle(display, 100, 100, 50, (255, 255, 255))
-        # pygame.gfxdraw.filled_circle(display, 100, 100, 50, (255, 255, 255))
+        # TODO: Remove this, only keeping it to show the center of the screen.
+        pygame.draw.circle(display, (255, 0, 0), display.get_rect().center, 5)

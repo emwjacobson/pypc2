@@ -56,18 +56,19 @@ while True:
             states = (data['gameStates']['mGameState'], data['gameStates']['mSessionState'], data['gameStates']['mRaceState'])
 
             # Show race screen during flying start & racing
-            if states == (2, 6, 2) or states == (2, 6, 1):
+            if states == (2, 6, 2) or states == (2, 6, 1) or states == (2, 1, 1) or states == (2, 1, 2) or states == (2, 3, 1) or states == (2, 3, 2):
                 race_screen.render_screen(data, screen)
             # Pause while flying & while racing
-            elif states == (3, 6, 2) or states == (3, 6, 1):
+            elif states == (3, 6, 2) or states == (3, 6, 1) or states == (3, 1, 1):
                 pause_screen.render_screen(data, screen, race_screen)
             elif states == (4, 6, 1):
                 loading_screen.render_screen(data, screen)
             else:
-                screen.fill((0, 200, 200))
-                print("{}\t{}\t{}".format(data['gameStates']['mGameState'],
-                                          data['gameStates']['mSessionState'],
-                                          data['gameStates']['mRaceState']))
+                # screen.fill((0, 200, 200))
+                loading_screen.render_screen(data, screen)
+                print("Unhandled game state: ({}, {}, {})".format(data['gameStates']['mGameState'],
+                                                                  data['gameStates']['mSessionState'],
+                                                                  data['gameStates']['mRaceState']))
         elif req.status_code == 503:
             print("503 Error: {}".format(data['status']))
             time.sleep(5)

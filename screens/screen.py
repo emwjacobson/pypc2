@@ -78,3 +78,15 @@ class Screen:
         if len(text) <= limit:
             return text
         return text[0:limit-3] + "..."
+    
+    def makeCircularGraph(self, amnt, thickness, color, radius):
+            # The `circle` surface is the full circle that rotates depending on `amnt`
+        circle = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
+            # The `graph` surface is the half-sized surface that only shows the top half of the bar.
+        graph = pygame.Surface((radius*2, radius), pygame.SRCALPHA)
+        pygame.draw.circle(circle, color, (circle.get_width() // 2, circle.get_height() // 2), radius, thickness, draw_top_right=False, draw_top_left=False, draw_bottom_left=True, draw_bottom_right=True)
+        circle_rot = pygame.transform.rotate(circle, -180 * amnt)
+            # Maniupulates the center variable to rotate around the center
+        pos = circle_rot.get_rect(center=circle.get_rect().center)
+        graph.blit(circle_rot, pos)
+        return graph
